@@ -1,46 +1,69 @@
 package excel;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;     // do .xls
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;     // do .xlsx
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 public class ExcelReader {
-    public static void readExcelFile(String folderPath, String fileName) {
-        File excelFile = new File(folderPath, fileName);
-
-        if (!excelFile.exists()) {
-            System.out.println("❌ File '" + fileName + "' not found in the specified folder.");
+    public static void readExcelFileIfExists(String folderPath) {
+        List<File> excelFiles = ExcelFileFinder.createListOfExcelFiles(folderPath);
+        if (excelFiles.isEmpty()) {
+            System.out.println("❌ Excel files not found in the specified folder.");
             return;
         }
 
-        try (FileInputStream fis = new FileInputStream(excelFile);
-             Workbook workbook = createWorkbook(fis, fileName)) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-            Sheet sheet = workbook.getSheetAt(0);
-            System.out.println("\n✅ Excel data:");
+        for (File excelFile : excelFiles) {
+            System.out.println("\nFound excel file " + excelFile.getAbsolutePath());
+            try (FileInputStream fis = new FileInputStream(excelFile);
+                 Workbook workbook = createWorkbook(fis, excelFile.getName())) {
 
-            for (Row row : sheet) {
-                for (Cell cell : row) {
-                    switch (cell.getCellType()) {
-                        case STRING:
-                            System.out.print(cell.getStringCellValue() + "\t");
-                            break;
-                        case NUMERIC:
-                            System.out.print(cell.getNumericCellValue() + "\t");
-                            break;
-                        default:
-                            System.out.print("?\t");
+                Sheet sheet = workbook.getSheetAt(0);
+                System.out.println("\n✅ Excel data:");
+
+                for (Row row : sheet) {
+                    for (Cell cell : row) {
+                        if (cell == null) {
+                            System.out.print("\t");
+                            continue;
+                        }
+                        switch (cell.getCellType()) {
+                            case STRING:
+                                System.out.print(cell.getStringCellValue() + "\t");
+                                break;
+                            case NUMERIC:
+                                if (DateUtil.isCellDateFormatted(cell)) {
+                                    System.out.print(sdf.format(cell.getDateCellValue()) + "\t");
+                                } else {
+                                    System.out.print(cell.getNumericCellValue() + "\t");
+                                }
+                                break;
+                            case BOOLEAN:
+                                System.out.print(cell.getBooleanCellValue() + "\t");
+                                break;
+                            case FORMULA:
+                                System.out.print(cell.getCellFormula() + "\t");
+                                break;
+                            case BLANK:
+                                System.out.print("\t");
+                                break;
+                            default:
+                                System.out.print("?\t");
+                        }
                     }
+                    System.out.println();
                 }
-                System.out.println();
-            }
 
-        } catch (IOException e) {
-            System.out.println("❌ Error reading the Excel file: " + e.getMessage());
+            } catch (IOException e) {
+                System.out.println("❌ Error reading the Excel file: " + e.getMessage());
+            }
         }
     }
 
