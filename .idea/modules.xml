@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/EmployeeRanking.iml" filepath="$PROJECT_DIR$/EmployeeRanking.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/EmployeeRanking.main.iml" filepath="$PROJECT_DIR$/.idea/modules/EmployeeRanking.main.iml" />
     </modules>
   </component>
 </project>
