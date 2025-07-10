@@ -1,6 +1,8 @@
 # 🧮 Employee Ranking Calculator
 
-This Java program calculates employee rankings based on Excel timesheet data. It scans a given directory (and its subdirectories) containing `.xls` and `.xlsx` files, extracts working hours, and displays rankings according to various criteria.
+This Java program calculates employee rankings based on Excel timesheet data.
+It scans a given directory (and its subdirectories) containing `.xls` and `.xlsx` files, extracts working hours 
+and displays rankings according to various criteria.
 
 ---
 
@@ -26,9 +28,17 @@ Sample timesheet data is organized in year/month subdirectories. You can find an
 
 2. In the terminal, navigate to the project root and build the app:
 
-```bash
-./gradlew build
-```
+
+* Build Using Gradle Wrapper
+    ```bash
+    ./gradlew build
+    ```
+  
+* if it failed build project via gradle in IDE:
+  
+Go to View → Tool Windows → Gradle.
+You’ll see a list of tasks like build, run, and test.
+So just do similar steps there.
 
 3. Run the application:
 
@@ -36,17 +46,15 @@ Sample timesheet data is organized in year/month subdirectories. You can find an
 ./gradlew run
 ```
 
-4. When prompted, enter the full path to the directory containing the Excel files (e.g., C:\Users\Example\EmployeeRanking\reporter-dane).
+4. When prompted, enter the full path to the directory containing the Excel files 
+ (e.g., C:\Users\Example\EmployeeRanking\reporter-dane).
 
-5. Enter the Excel file name when prompted
+---
 
 ## 📘 Usage Scenarios
 The program performs the following:
-
 - Prompts the user to enter the path to the directory containing timesheet files.
-
 - Reads all .xls and .xlsx Excel files recursively from that folder and its subfolders.
-
 - Displays human-readable rankings based on aggregated working hours:
 
 ### a) 👷‍♂️ Employee Ranking
@@ -56,7 +64,6 @@ Example:
 1. Anna Kowalska – 178.5 hours
 2. Jan Nowak – 166.0 hours
 ```
-
 
 ### b) 🗓️ Month Ranking
 Displays months ranked by total hours worked across all employees and all projects.
@@ -74,11 +81,15 @@ Example:
 2. 4 September 2015 – 42 hours
 ```
 
+---
+
 ## 🔧 Technologies Used
 - Java 21
 - Apache POI (for reading .xls and .xlsx)
 - Gradle (build system)
 - Log4j or SLF4J can be added for proper logging (currently logs may show POI warnings)
+
+---
 
 ## 📬 Author
 Created by Paulina Szymańska
