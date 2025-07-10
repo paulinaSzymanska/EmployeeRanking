@@ -7,65 +7,51 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ExcelReader {
-    public static void readExcelFileIfExists(String folderPath) {
+    public static List<Entry> readEntriesFromExcel(String folderPath) {
         List<File> excelFiles = ExcelFileFinder.createListOfExcelFiles(folderPath);
-        if (excelFiles.isEmpty()) {
-            System.out.println("❌ Excel files not found in the specified folder.");
-            return;
-        }
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        List<Entry> entries = new ArrayList<>();
 
         for (File excelFile : excelFiles) {
-            System.out.println("\nFound excel file " + excelFile.getAbsolutePath());
             try (FileInputStream fis = new FileInputStream(excelFile);
                  Workbook workbook = createWorkbook(fis, excelFile.getName())) {
 
                 Sheet sheet = workbook.getSheetAt(0);
-                System.out.println("\n✅ Excel data:");
-
                 for (Row row : sheet) {
-                    for (Cell cell : row) {
-                        if (cell == null) {
-                            System.out.print("\t");
-                            continue;
+                    if (row.getRowNum() == 0) continue; // skip header
+                    try {
+                        Cell dateCell = row.getCell(0);
+                        Cell nameCell = row.getCell(1);
+                        Cell hoursCell = row.getCell(2);
+
+                        if (dateCell == null || nameCell == null || hoursCell == null) continue;
+
+                        Date date = DateUtil.isCellDateFormatted(dateCell)
+                                ? dateCell.getDateCellValue()
+                                : null;
+
+                        String name = nameCell.getStringCellValue();
+                        double hours = hoursCell.getNumericCellValue();
+
+                        if (date != null) {
+                            entries.add(new Entry(date, name, hours));
                         }
-                        switch (cell.getCellType()) {
-                            case STRING:
-                                System.out.print(cell.getStringCellValue() + "\t");
-                                break;
-                            case NUMERIC:
-                                if (DateUtil.isCellDateFormatted(cell)) {
-                                    System.out.print(sdf.format(cell.getDateCellValue()) + "\t");
-                                } else {
-                                    System.out.print(cell.getNumericCellValue() + "\t");
-                                }
-                                break;
-                            case BOOLEAN:
-                                System.out.print(cell.getBooleanCellValue() + "\t");
-                                break;
-                            case FORMULA:
-                                System.out.print(cell.getCellFormula() + "\t");
-                                break;
-                            case BLANK:
-                                System.out.print("\t");
-                                break;
-                            default:
-                                System.out.print("?\t");
-                        }
+                    } catch (Exception ex) {
+                        //do nothing
                     }
-                    System.out.println();
                 }
 
             } catch (IOException e) {
-                System.out.println("❌ Error reading the Excel file: " + e.getMessage());
+                System.out.println("❌ Error reading Excel file: " + e.getMessage());
             }
         }
+        return entries;
     }
+
 
     private static Workbook createWorkbook(FileInputStream fis, String fileName) throws IOException {
         if (fileName.toLowerCase().endsWith(".xlsx")) {

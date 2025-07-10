@@ -1,4 +1,6 @@
 package excel;
 
-public class Entry {
+import java.util.Date;
+
+public record Entry(Date date, String employeeName, double hours) {
 }
